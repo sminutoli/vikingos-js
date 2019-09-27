@@ -11,3 +11,9 @@ El enunciado lo podés descargar [en este lugar](https://docs.google.com/documen
 3. el package.json es lo que determina que paquetes usa tu proyecto. Estando dentro de una carpeta con un package.json y ejecutando npm install se descargaran los modulos necesarios en node_modules.
 4. para usar jest en IntelliJ tienen que decirle al runner donde esta el jest package (dentro del `node_module`)
 5. para que el IDE te ayude con los metodos de JEST tenes que instalar el plugin de JEST y en `settings > languages > JS > libraries` activar JEST.
+
+# Desde Visual Studio Code
+
+## Qué archivos miramos
+
+- `.eslintrc` ==> es el que define las reglas del Linter
