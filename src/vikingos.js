@@ -1,4 +1,4 @@
-export const NIVEL_HAMBRE_LIMITE = 50
+export const NIVEL_HAMBRE_LIMITE_PATAPEZ = 50
 
 // primera variante, construyo un objeto
 export const hipo = {
@@ -16,11 +16,11 @@ class Vikingo {
   // 1. me aseguro que construir un objeto sea una operación atómica (no queda en
   // estado inconsistente)
   // 2. quiero que el vikingo sea inmutable
-  constructor(peso, velocidad, barbarosidad) {
-    this.peso = peso
-    this.velocidad = velocidad
-    this.barbarosidad = barbarosidad
+  constructor(props) {
     this.nivelDeHambre = 0
+    Object.assign(this, props)
+    // TIP: para devolver un objeto que no se puede modificar
+    return Object.freeze(this)
   }
 
   participaDeUnaPosta() {
@@ -29,28 +29,29 @@ class Vikingo {
 }
 
 // además me exporto objetos instanciados a partir de una clase como constantes
-export const astrid = new Vikingo(130, 10, 7)
-export const patan = new Vikingo(100, 15, 13)
+export const astrid = new Vikingo({peso: 130, velocidad: 10, barbarosidad: 7})
+export const patan = new Vikingo({peso: 100, velocidad: 15, barbarosidad: 13})
 
 // Patapez, podría ser un objeto, en principio aprovechamos la clase
 export class Patapez extends Vikingo {
-  constructor(peso, velocidad, barbarosidad, nivelDeHambre = NIVEL_HAMBRE_LIMITE) {
-    super(peso, velocidad, barbarosidad)
-    this.nivelDeHambre = nivelDeHambre
-  }
-
   pasarHambre(cuanto) {
     //this.nivelDeHambre = this.nivelDeHambre + cuanto
-    return new Patapez(this.peso, this.velocidad, this.barbarosidad, this.nivelDeHambre + cuanto)
+    return new Patapez({
+      ...this,
+      nivelDeHambre: this.nivelDeHambre + cuanto
+    })
   }
 
   comer(cuanto) {
     // en lugar de this.nivelDeHambre = this.nivelDeHambre - cuanto  <== MUTABLE
     // devolvemos un nuevo patapez
-    return new Patapez(this.peso, this.velocidad, this.barbarosidad, this.nivelDeHambre - cuanto)
+    return new Patapez({
+      ...this,
+      nivelDeHambre: this.nivelDeHambre - cuanto
+    })
   }
 
   participaDeUnaPosta() {
-    return this.nivelDeHambre <= NIVEL_HAMBRE_LIMITE
+    return this.nivelDeHambre <= NIVEL_HAMBRE_LIMITE_PATAPEZ
   }
 }
