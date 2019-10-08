@@ -60,10 +60,10 @@ Un torneo consta de 3 postas principales:
 
 Para este torneo estarán participando los siguientes vikingos:
 
-- **Hipo**: pesa 80kg, alcanza una velocidad de 13 km/h y tiene un nivel de barbarosidad de 10. Puede participar en una posta si su nivel de barbarosidad es >= 10.
+- **Hipo**: pesa 80kg, alcanza una velocidad de 13 km/h y tiene un nivel de barbarosidad de 10. 
 - **Astrid**: pesa 130kg, alcanza una velocidad de 10 km/h y tiene un nivel de barbarosidad de 7.
 - **Patán**:  pesa 100kg, alcanza una velocidad de 15 km/h y tiene un nivel de barbarosidad de 13.
-- **Patapez**: pesa 70kg, alcanza una velocidad de 7 km/h y tiene un nivel de barbarosidad de 1. Es un chico muy inteligente pero poco deportivo. No puede participar en una posta si su hambre supera 50% y le da el doble de hambre que al resto participar de una posta. Por eso, come cada vez que termina de participar en una posta bajando su nivel de hambre en 20%.
+- **Patapez**: pesa 70kg, alcanza una velocidad de 7 km/h y tiene un nivel de barbarosidad de 1. Es un chico muy inteligente pero poco deportivo. 
 
 1. Postas!
 
@@ -118,15 +118,23 @@ const laVerdad = (parametro) => true            // arrow functions
 const laVerdad = (parametro) => { return true } // arrow functions que permiten acciones
 function laVerdad(parametro) { return true }    // formato de función
 ```
-
 Invocamos a una función a través de los paréntesis:
 
 ```js
 laVerdad(1) // ==> devuelve true
 laVerdad()  // ==> oia! también devuelve true, porque parametro queda undefined
 ```
-
 Les recomendamos leer [esta página](https://www.freecodecamp.org/news/when-and-why-you-should-use-es6-arrow-functions-and-when-you-shouldnt-3d851d7f0b26/) para sacarse las dudas cada vez que vuelvan sobre ésto (y van a volver, créannos).
+
+A partir de ahora, vamos a usar otro syntactic sugar, que es más simple:
+
+```js
+export const carrera = {
+  puedeParticipar(participante) {
+    return true
+  }
+}
+```
 
 Este test que acabamos de definir es lo que Martin Fowler llamaría [test solitario](https://martinfowler.com/bliki/UnitTest.html), no necesitamos definir un vikingo posta por el momento, porque solo queremos probar la funcionalidad de nuestra posta de carrera.
 
@@ -153,7 +161,7 @@ describe('Postas Test', () => {
       barbarosidad: 9,
       peso: 40
     }
-    combate.gradoBarbaridadRequerido = 10
+    combate.gradoBarbaridadRequerido = 10  // encapsulamiento, quién te conoce
   })
   test('cualquier vikingo puede participar de una carrera', () => {
     expect(carrera.puedeParticipar(vikingoNoTanBarbaro)).toBeTruthy()
@@ -174,7 +182,7 @@ La implementación de combate sigue siendo un objeto con dos slots: el atributo 
 ```js
 export const combate = {
   gradoBarbaridadRequerido: 0,
-  puedeParticipar: function (participante) {
+  puedeParticipar(participante) {
     return participante.barbarosidad >= this.gradoBarbaridadRequerido
   }
 }
@@ -188,30 +196,120 @@ Ya tenemos polimorfismo entre objetos... ¿lo notaron?
     expect(combate.puedeParticipar(vikingoNoTanBarbaro)).toBeFalsy()
 ```
 
-![smile](https://media.giphy.com/media/xSM46ernAUN3y/giphy-downsized.gif)
+![smile](https://media.giphy.com/media/rIq6ASPIqo2k0/giphy-downsized-large.gif)
 
-## Nuestra primera definición de un vikingo
+## Agregados: los vikingos
 
-"Hipo: pesa 80kg, alcanza una velocidad de 13 km/h y tiene un nivel de barbarosidad de 10...". Asumimos que hipo puede participar de cualquier posta, era un requerimiento que después cambiamos:
+Ahora necesitamos saber si un vikingo puede participar de una posta:
 
-Esto se logra con un objeto `hipo`, que no necesita pertenecer a ninguna clase
+- Todos los vikingos pueden participar en una posta si cumplen los requisitos de dicha posta.
+- Hipo puede participar en una posta si su nivel de barbarosidad es >= 10.
+- Patapez no puede participar en una posta si su hambre supera 50% y le da el doble de hambre que al resto participar de una posta. Por eso, come cada vez que termina de participar en una posta bajando su nivel de hambre en 20%.
+
+### Objetos o clases
+
+Ahora necesitamos definir los vikingos, donde
+
+- todos van a tener los mismos atributos
+- todos (independientemente de que agreguen o no condiciones) deben delegar a la posta para preguntar si pueden participar de ella
+
+Podemos seguir trabajando con objetos:
 
 ```js
+const vikingoDefault = {
+  puedeParticiparDeUnaPosta(posta) {
+    return posta.puedeParticipar(this)
+  }
+}
+
 export const hipo = {
-  barbarosidad: 10,
+  __proto__: vikingoDefault,
+  nombre: 'Hipo',
   velocidad: 13,
+  barbarosidad: 10,
   peso: 80,
-  nivelDeHambre: 0,
-  participaDeUnaPosta: () => true // definimos una función dentro del objeto, se parece a un método
+  hambre: 0,
+  puedeParticiparDeUnaPosta(posta) {
+    return this.barbarosidad >= 10 && this.__proto__.puedeParticiparDeUnaPosta(posta)
+  },
 }
 ```
 
-`hipo` es un objeto que tiene varios **slots**:
+De esta manera:
 
-- barbarosidad, velocidad, peso y nivelDeHambre, son los atributos, definidos como slots que referencian números
-- tenemos un slot más: participaDeUnaPosta, que referencia a una función que va a ser invocada dentro del contexto de hipo. Eso se puede ver como un método, aunque no sea exacto, para no marearnos.
+- `__proto__` funciona como un objeto prototipo, delegamos en él la parte común a todos los vikingos
+- si el comportamiento default de Astrid es delegar a la posta, definimos su prototipo y esto permite que todo método no definido se delegue automáticamente al prototipo:
 
-## Enunciado
+```js
+export const astrid = {
+  peso: 130,
+  velocidad: 10,
+  barbarosidad: 7,
+  __proto__: vikingoDefault
+}
+```
 
-El enunciado para trabajar post-clase lo podés descargar [en este lugar](https://docs.google.com/document/d/1X6hsA9FuhwxJvQio-JBGHx19cae1dxV9BHN-W5vLX8w/edit#heading=h.k2whxqod4zsw)
+![aspero](https://media.giphy.com/media/FKGjTmgGage3K/giphy-downsized.gif)
 
+Pero el **prototype chain** de Javascript suele ser bastante áspero de movida, entonces vamos a recalcular y dejarles este [apunte de Diseño en Javascript 5](https://docs.google.com/document/d/16uezoafdWPm0XC8NsA2HUib6lUDkFiStUfEIH2x7ysU/edit) por si quieren jugar un poco.
+
+## Ok, vamos por las clases
+
+Esto se va a parecer más a lo que conocen. Astrid y Patán serán instancias de una clase Vikingo. ES6 (la especificación ECMAScript 6) introdujo un syntactic sugar de clase:
+
+```js
+class Vikingo {
+
+  // para qué un constructor con los parámetros
+  // 1. me aseguro que construir un objeto sea una operación atómica (no queda en
+  // estado inconsistente)
+  // 2. quiero que el vikingo sea inmutable
+  constructor(props) {
+    this.nivelDeHambre = 0
+    return Object.assign(this, props)
+  }
+
+  puedeParticiparDeUnaPosta(posta) {
+    return posta.puedeParticipar(this) && this.participaDeUnaPosta()
+  }
+
+  participaDeUnaPosta() {
+    return true
+  }
+}
+
+// además me exporto objetos instanciados a partir de una clase como constantes
+export const astrid = new Vikingo({ peso: 130, velocidad: 10, barbarosidad: 7 })
+export const patan = new Vikingo({ peso: 100, velocidad: 15, barbarosidad: 13 })
+```
+
+Por otra parte, Patapez va a ser subclase de Vikingo, para redefinir el hook method que calcula la posibilidad de que participe de una posta:
+
+```js
+    test('patapez con hambre justa puede participar de una posta', () => {
+        patapez.nivelDeHambre = NIVEL_HAMBRE_LIMITE_PATAPEZ
+        expect(patapez.participaDeUnaPosta()).toBeTruthy()
+    })
+    test('patapez con mucha hambre no puede participar de una posta', () => {
+        patapez.nivelDeHambre = NIVEL_HAMBRE_LIMITE_PATAPEZ + 1
+        expect(patapez.participaDeUnaPosta()).toBeFalsy()
+    })
+```
+
+Un dato curioso: ¿por qué este test funciona?
+
+```js
+    test('lcdtmjs!', () => {
+        patapez.nivelHambre = 10000000000000
+        expect(patapez.participaDeUnaPosta()).toBeTruthy()
+        // por qué? por qué? adivinalo
+    })
+```
+
+## Tarea para el hogar
+
+Completar los tests que faltan y seguir con el [enunciado completo](https://docs.google.com/document/d/1X6hsA9FuhwxJvQio-JBGHx19cae1dxV9BHN-W5vLX8w/edit#), sin tomar en cuenta este requerimiento:
+
+> Inmutability-galore
+
+Es decir, saltéense ese paso.

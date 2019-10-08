@@ -1,23 +1,34 @@
-import {hipo, Patapez, NIVEL_HAMBRE_LIMITE_PATAPEZ} from '../src/vikingos'
-
-const patapez = new Patapez({nivelDeHambre: NIVEL_HAMBRE_LIMITE_PATAPEZ, peso: 7, velocidad: 1})
+import { hipo, Patapez, Vikingo, NIVEL_HAMBRE_LIMITE_PATAPEZ } from '../src/vikingos'
+import { carrera } from '../src/postas'
 
 describe('Vikingos Test', () => {
-    test('un vikingo es inmutable', () => {
-        expect(() => {
-            patapez.barbarosidad = 2
-        }).toThrow(TypeError)
+    let astrid
+    let patan
+    let patapez
+
+    beforeEach(() => {
+        astrid = new Vikingo({ peso: 130, velocidad: 10, barbarosidad: 7 })
+        patan = new Vikingo({ peso: 100, velocidad: 15, barbarosidad: 13 })
+        patapez = new Patapez({ peso: 70, velocidad: 7, barbarosidad: 1 })
     })
-    test('un vikingo común puede participar de una posta', () => {
-        expect(hipo.participaDeUnaPosta()).toBe(true)
+    test('hipo puede participar de una carrera si tiene barbarosidad suficiente', () => {
+        expect(hipo.puedeParticiparDeUnaPosta(carrera)).toBeTruthy()
     })
-    test('patapez sin tanta hambre puede participar de una posta', () => {
-        expect(patapez.comer(1).participaDeUnaPosta()).toBe(true)
+    test('hipo no puede participar de una carrera si no tiene barbarosidad suficiente', () => {
+        hipo.barbarosidad = 9
+        expect(hipo.puedeParticiparDeUnaPosta(carrera)).toBeFalsy()
     })
-    test('caso borde => patapez puede participar de una posta con cantidad de hambre justa', () => {
-        expect(patapez.participaDeUnaPosta()).toBe(true)
+    test('patapez con hambre justa puede participar de una posta', () => {
+        patapez.nivelDeHambre = NIVEL_HAMBRE_LIMITE_PATAPEZ
+        expect(patapez.participaDeUnaPosta()).toBeTruthy()
     })
     test('patapez con mucha hambre no puede participar de una posta', () => {
-        expect(patapez.pasarHambre(1).participaDeUnaPosta()).toBe(false)
+        patapez.nivelDeHambre = NIVEL_HAMBRE_LIMITE_PATAPEZ + 1
+        expect(patapez.participaDeUnaPosta()).toBeFalsy()
+    })
+    test('lcdtmjs!', () => {
+        patapez.nivelHambre = 10000000000000
+        expect(patapez.participaDeUnaPosta()).toBeTruthy()
+        // por qué? por qué? adivinalo
     })
 })

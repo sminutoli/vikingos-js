@@ -1,15 +1,24 @@
-export const NIVEL_HAMBRE_LIMITE_PATAPEZ = 50
-
 // primera variante, construyo un objeto
+const vikingoDefault = {
+  puedeParticiparDeUnaPosta(posta) {
+    return posta.puedeParticipar(this)
+  }
+}
+
 export const hipo = {
-  barbarosidad: 10,
+  __proto__: vikingoDefault,
+  nombre: 'Hipo',
   velocidad: 13,
+  barbarosidad: 10,
   peso: 80,
-  nivelDeHambre: 0
+  hambre: 0,
+  puedeParticiparDeUnaPosta(posta) {
+    return this.barbarosidad >= 10 && this.__proto__.puedeParticiparDeUnaPosta(posta)
+  },
 }
 
 // otra variante, construyo una clase
-class Vikingo {
+export class Vikingo {
 
   // para qué un constructor con los parámetros
   // 1. me aseguro que construir un objeto sea una operación atómica (no queda en
@@ -17,9 +26,11 @@ class Vikingo {
   // 2. quiero que el vikingo sea inmutable
   constructor(props) {
     this.nivelDeHambre = 0
-    Object.assign(this, props)
-    // TIP: para devolver un objeto que no se puede modificar
-    return Object.freeze(this)
+    return Object.assign(this, props)
+  }
+
+  puedeParticiparDeUnaPosta(posta) {
+    return posta.puedeParticipar(this) && this.participaDeUnaPosta()
   }
 
   participaDeUnaPosta() {
@@ -27,29 +38,9 @@ class Vikingo {
   }
 }
 
-// además me exporto objetos instanciados a partir de una clase como constantes
-export const astrid = new Vikingo({peso: 130, velocidad: 10, barbarosidad: 7})
-export const patan = new Vikingo({peso: 100, velocidad: 15, barbarosidad: 13})
+export const NIVEL_HAMBRE_LIMITE_PATAPEZ = 50
 
-// Patapez, podría ser un objeto, en principio aprovechamos la clase
 export class Patapez extends Vikingo {
-  pasarHambre(cuanto) {
-    //this.nivelDeHambre = this.nivelDeHambre + cuanto
-    return new Patapez({
-      ...this,
-      nivelDeHambre: this.nivelDeHambre + cuanto
-    })
-  }
-
-  comer(cuanto) {
-    // en lugar de this.nivelDeHambre = this.nivelDeHambre - cuanto  <== MUTABLE
-    // devolvemos un nuevo patapez
-    return new Patapez({
-      ...this,
-      nivelDeHambre: this.nivelDeHambre - cuanto
-    })
-  }
-
   participaDeUnaPosta() {
     return this.nivelDeHambre <= NIVEL_HAMBRE_LIMITE_PATAPEZ
   }
