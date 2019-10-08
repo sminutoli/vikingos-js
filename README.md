@@ -249,7 +249,7 @@ export const astrid = {
 }
 ```
 
-![aspero](https://media.giphy.com/media/FKGjTmgGage3K/giphy-downsized.gif)
+![aspero](https://media.giphy.com/media/FKGjTmgGage3K/giphy.gif)
 
 Pero el **prototype chain** de Javascript suele ser bastante áspero de movida, entonces vamos a recalcular y dejarles este [apunte de Diseño en Javascript 5](https://docs.google.com/document/d/16uezoafdWPm0XC8NsA2HUib6lUDkFiStUfEIH2x7ysU/edit) por si quieren jugar un poco.
 
