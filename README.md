@@ -1,5 +1,7 @@
 # Juegos de inverno
 
+[![Build Status](https://www.travis-ci.org/fdodino/vikingos-js.svg?branch=01-intro-JS)](https://www.travis-ci.org/fdodino/vikingos-js)
+
 ## Entorno para trabajar
 
 - Instalar [node](https://nodejs.org/es/), la versión estable (10.16.13 LTS)
@@ -7,7 +9,7 @@
 - Instalar [Visual Studio Code](https://code.visualstudio.com/)
 - Agregarle las siguientes extensions:
   - [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): para detectar errores de javascript
-  - [Live Share](): para pairear remoto (y tener acceso al control de tu máquina)
+  - [Live Share](https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsliveshare): para pairear remoto (y tener acceso al control de tu máquina)
   - [JEST](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest): para correr o debuggear directamente desde Visual Studio Code
   - [Jest Runner](https://marketplace.visualstudio.com/items?itemName=firsttris.vscode-jest-runner), para tener menúes de Run y Debug de tests
   - [Autoimport](https://marketplace.visualstudio.com/items?itemName=steoates.autoimport)
