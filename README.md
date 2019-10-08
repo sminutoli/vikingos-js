@@ -277,7 +277,23 @@ class Vikingo {
     return true
   }
 }
+```
 
+Una clase tiene
+
+- un constructor (y solo uno)
+- atributos
+- métodos (`this` tal cual lo conocemos de Java)
+
+En esta implementación, nosotros le pasamos un objeto, y lo que estamos haciendo es generar una copia de Vikingo con las propiedades que le pasamos en el constructor:
+
+Paso 0) objeto Vikingo tiene solamente this.nivelDeHambre => 0
+Paso 1) generamos una copia de Vikingo, con los parámetros recibidos + (nivelDeHambre => 0)
+Paso 2) devolvemos ese objeto nuevo
+
+Vemos cómo se instancia en el test:
+
+```js
 // además me exporto objetos instanciados a partir de una clase como constantes
 export const astrid = new Vikingo({ peso: 130, velocidad: 10, barbarosidad: 7 })
 export const patan = new Vikingo({ peso: 100, velocidad: 15, barbarosidad: 13 })
