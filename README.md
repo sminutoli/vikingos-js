@@ -38,7 +38,8 @@ No tienen que configurar nada, pero está bueno saber que están
 - `.gitignore` ==> para no agregar el directorio `.history`, ni `node_modules`
 - `babel.config.js` ==> configuración de Babel para transpilar código que escribieron a una versión más vieja de Javascript soportada por a) navegadores, b) versiones de node anteriores.
 
-El transpiler hace que puedas escribir lambdas como una función que suma 1 a un número: `(numero) => numero + 1` y te lo convierta a código en una versión vieja de javascript que no tiene arrow functions:
+El transpiler es necesario para poder utilizar la sintaxis de módulos en JS, así como para soportar features experimentales que no son parte del estándar ES6 (soportado por la mayoría de los navegadores).
+También se asegura que puedas escribir ES6 (por ejemplo, clases o lambdas como una función que suma 1 a un número: `(numero) => numero + 1`) convirtiendolo a un código retrocompatible (por ejemplo para IE):
 
 ![transpiler](https://i0.wp.com/wipdeveloper.com/wp-content/uploads/2017/05/npm-scripts-babel1.gif?resize=733%2C411&ssl=1)
 
@@ -116,23 +117,23 @@ Un objeto javascript tiene **slots**:
 En javascript tenemos varios formatos para definir funciones:
 
 ```js
-const laVerdad = (parametro) => true            // arrow functions
-const laVerdad = (parametro) => { return true } // arrow functions que permiten acciones
-function laVerdad(parametro) { return true }    // formato de función
+const laVerdad = parametro => true            // arrow functions en su versión más concisa, un parametro y un retorno inline
+const laVerdad = (parametro, otro) => { return true } // arrow functions que permiten varios parametros y cuerpo de función
+function laVerdad(parametro) { return true }    // formato de función tradicional
 ```
 Invocamos a una función a través de los paréntesis:
 
 ```js
 laVerdad(1) // ==> devuelve true
-laVerdad()  // ==> oia! también devuelve true, porque parametro queda undefined
+laVerdad()  // ==> oia! también devuelve true, porque no usamos para nada el parametro
 ```
 Les recomendamos leer [esta página](https://www.freecodecamp.org/news/when-and-why-you-should-use-es6-arrow-functions-and-when-you-shouldnt-3d851d7f0b26/) para sacarse las dudas cada vez que vuelvan sobre ésto (y van a volver, créannos).
 
-A partir de ahora, vamos a usar otro syntactic sugar, que es más simple:
+A partir de ahora, vamos a usar otro syntactic sugar para indicar que un slot es una función, que es más simple:
 
 ```js
 export const carrera = {
-  puedeParticipar(participante) {
+  puedeParticipar(participante) { // no hace falta el :function() {}
     return true
   }
 }
@@ -232,7 +233,7 @@ export const hipo = {
   peso: 80,
   hambre: 0,
   puedeParticiparDeUnaPosta(posta) {
-    return this.barbarosidad >= 10 && this.__proto__.puedeParticiparDeUnaPosta(posta)
+    return this.barbarosidad >= 10 && super.puedeParticiparDeUnaPosta(posta)
   },
 }
 ```
@@ -265,18 +266,18 @@ class Vikingo {
   // para qué un constructor con los parámetros
   // 1. me aseguro que construir un objeto sea una operación atómica (no queda en
   // estado inconsistente)
-  // 2. quiero que el vikingo sea inmutable
-  constructor(props) {
+  // 2. Tomo sólo las propiedades que me interesan, de otra manera podrian sobreescribirme los slots correspondientes a métodos!
+  constructor({ peso, velocidad, barbarosidad }) {
     this.nivelDeHambre = 0
-    return Object.assign(this, props)
+    Object.assign(this, { peso, velocidad, barbarosidad })
   }
 
   puedeParticiparDeUnaPosta(posta) {
-    return posta.puedeParticipar(this) && this.participaDeUnaPosta()
+    return posta.puedeParticipar(this)
   }
 
-  participaDeUnaPosta() {
-    return true
+  participaDeUnaPosta(posta) {
+    return this.puedeParticiparDeUnaPosta(posta)
   }
 }
 ```
@@ -284,14 +285,12 @@ class Vikingo {
 Una clase tiene
 
 - un constructor (y solo uno)
-- atributos
 - métodos (`this` tal cual lo conocemos de Java)
 
 En esta implementación, nosotros le pasamos un objeto, y lo que estamos haciendo es generar una copia de Vikingo con las propiedades que le pasamos en el constructor:
 
-Paso 0) objeto Vikingo tiene solamente this.nivelDeHambre => 0
-Paso 1) generamos una copia de Vikingo, con los parámetros recibidos + (nivelDeHambre => 0)
-Paso 2) devolvemos ese objeto nuevo
+Paso 0) todo objeto Vikingo tiene hardcodeado this.nivelDeHambre => 0
+Paso 1) a esta instancia le asignamos los parámetros recibidos que nos interesan
 
 Vemos cómo se instancia en el test:
 

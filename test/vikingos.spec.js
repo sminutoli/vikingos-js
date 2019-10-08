@@ -20,15 +20,15 @@ describe('Vikingos Test', () => {
     })
     test('patapez con hambre justa puede participar de una posta', () => {
         patapez.nivelDeHambre = NIVEL_HAMBRE_LIMITE_PATAPEZ
-        expect(patapez.participaDeUnaPosta()).toBeTruthy()
+        expect(patapez.participaDeUnaPosta(carrera)).toBeTruthy()
     })
     test('patapez con mucha hambre no puede participar de una posta', () => {
         patapez.nivelDeHambre = NIVEL_HAMBRE_LIMITE_PATAPEZ + 1
-        expect(patapez.participaDeUnaPosta()).toBeFalsy()
+        expect(patapez.participaDeUnaPosta(carrera)).toBeFalsy()
     })
     test('lcdtmjs!', () => {
         patapez.nivelHambre = 10000000000000
-        expect(patapez.participaDeUnaPosta()).toBeTruthy()
+        expect(patapez.participaDeUnaPosta(carrera)).toBeTruthy()
         // por qué? por qué? adivinalo
     })
 })

@@ -13,7 +13,7 @@ export const hipo = {
   peso: 80,
   hambre: 0,
   puedeParticiparDeUnaPosta(posta) {
-    return this.barbarosidad >= 10 && this.__proto__.puedeParticiparDeUnaPosta(posta)
+    return this.barbarosidad >= 10 && super.puedeParticiparDeUnaPosta(posta)
   },
 }
 
@@ -30,18 +30,18 @@ export class Vikingo {
   }
 
   puedeParticiparDeUnaPosta(posta) {
-    return posta.puedeParticipar(this) && this.participaDeUnaPosta()
+    return posta.puedeParticipar(this)
   }
 
-  participaDeUnaPosta() {
-    return true
+  participaDeUnaPosta(posta) {
+    return this.puedeParticiparDeUnaPosta(posta);
   }
 }
 
 export const NIVEL_HAMBRE_LIMITE_PATAPEZ = 50
 
 export class Patapez extends Vikingo {
-  participaDeUnaPosta() {
-    return this.nivelDeHambre <= NIVEL_HAMBRE_LIMITE_PATAPEZ
+  puedeParticiparDeUnaPosta(posta) {
+    return this.nivelDeHambre <= NIVEL_HAMBRE_LIMITE_PATAPEZ && super.puedeParticiparDeUnaPosta(posta)
   }
 }
