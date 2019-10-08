@@ -5,8 +5,7 @@ export const hipo = {
   barbarosidad: 10,
   velocidad: 13,
   peso: 80,
-  nivelDeHambre: 0,
-  participaDeUnaPosta: () => true // definimos una función dentro del objeto, se parece a un método
+  nivelDeHambre: 0
 }
 
 // otra variante, construyo una clase

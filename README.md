@@ -10,6 +10,7 @@
   - [Live Share](): para pairear remoto (y tener acceso al control de tu máquina)
   - [JEST](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest): para correr o debuggear directamente desde Visual Studio Code
   - [Jest Runner](https://marketplace.visualstudio.com/items?itemName=firsttris.vscode-jest-runner), para tener menúes de Run y Debug de tests
+  - [Autoimport](https://marketplace.visualstudio.com/items?itemName=steoates.autoimport)
   - [Git Lens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens): un cliente (más) para manejarse con git.
 - si quieren probar un [Tabnine, autocompleter loco](https://marketplace.visualstudio.com/items?itemName=TabNine.tabnine-vscode) ahí lo tienen para descargar
 
@@ -59,13 +60,135 @@ Un torneo consta de 3 postas principales:
 
 Para este torneo estarán participando los siguientes vikingos:
 
-- **Hipo**: pesa 80kg, alcanza una velocidad de 13 km/h y tiene un nivel de barbarosidad de 10.
+- **Hipo**: pesa 80kg, alcanza una velocidad de 13 km/h y tiene un nivel de barbarosidad de 10. Puede participar en una posta si su nivel de barbarosidad es >= 10.
 - **Astrid**: pesa 130kg, alcanza una velocidad de 10 km/h y tiene un nivel de barbarosidad de 7.
 - **Patán**:  pesa 100kg, alcanza una velocidad de 15 km/h y tiene un nivel de barbarosidad de 13.
 - **Patapez**: pesa 70kg, alcanza una velocidad de 7 km/h y tiene un nivel de barbarosidad de 1. Es un chico muy inteligente pero poco deportivo. No puede participar en una posta si su hambre supera 50% y le da el doble de hambre que al resto participar de una posta. Por eso, come cada vez que termina de participar en una posta bajando su nivel de hambre en 20%.
 
-## Nuestra primera definición: la posta de pesca
+1. Postas!
 
+Hacer que varios participantes participen en una posta, para esto hay que ver quienes pueden participar. Cada posta posee ciertos criterios de admisión que dependen del tipo de posta:
+
+- **Pesca**: Puede existir o no un requerimiento de peso mínimo que debe levantar un participante.
+- **Combate**: Debe tener al menos un grado de barbaridad mínimo.
+- **Carrera**: No tiene requerimientos.
+
+## Resolviendo el punto 1
+
+Nos concentraremos primero en el punto 1: hacer que los vikingos participen en una posta. Esto depende principalmente de la posta, polimorfismo mediante, comenzamos pensando en nuestro primer test, necesitamos
+
+- como precondiciones: una posta carrera, y un vikingo poco fuerte
+- como acciones: el vikingo poco fuerte quiere participar de la carrera, que no tiene restricciones
+- como condiciones a cumplir: debe poder
+
+```js
+describe('Postas Test', () => {
+  test('cualquier vikingo puede participar de una carrera', () => {
+    expect(carrera.puedeParticipar(vikingoPocoFuerte)).toBeTruthy()
+  })
+})
+```
+
+¿Cómo implementamos al vikingo poco fuerte? Como un objeto puro:
+
+```js
+const vikingoPocoFuerte = {
+  barbarosidad: 0,
+  peso: 40
+}
+```
+
+Y la carrera, como otro objeto:
+
+```js
+export const carrera = {
+  puedeParticipar: function(participante) { return true }
+}
+```
+
+Un objeto javascript tiene **slots**:
+
+- en el caso del vikingo poco fuerte, tenemos atributos como la barbarosidad o el peso
+- en el caso de la carrera, vemos que un slot también puede referenciar a una función, es el equivalente al método que nosotros conocemos. No, no son exactamente iguales pero se parecen bastante y a los fines prácticos los vamos a tratar en forma similar.
+
+En javascript tenemos varios formatos para definir funciones:
+
+```js
+const laVerdad = (parametro) => true            // arrow functions
+const laVerdad = (parametro) => { return true } // arrow functions que permiten acciones
+function laVerdad(parametro) { return true }    // formato de función
+```
+
+Invocamos a una función a través de los paréntesis:
+
+```js
+laVerdad(1) // ==> devuelve true
+laVerdad()  // ==> oia! también devuelve true, porque parametro queda undefined
+```
+
+Les recomendamos leer [esta página](https://www.freecodecamp.org/news/when-and-why-you-should-use-es6-arrow-functions-and-when-you-shouldnt-3d851d7f0b26/) para sacarse las dudas cada vez que vuelvan sobre ésto (y van a volver, créannos).
+
+Este test que acabamos de definir es lo que Martin Fowler llamaría [test solitario](https://martinfowler.com/bliki/UnitTest.html), no necesitamos definir un vikingo posta por el momento, porque solo queremos probar la funcionalidad de nuestra posta de carrera.
+
+## Segunda implementación: posta de combate
+
+Para la posta de combate, tenemos que separar dos clases de equivalencia:
+
+- vikingos que tienen el grado de barbarosidad justo para competir
+- vikingos que tienen justo un grado menos de barbarosidad y no pueden participar
+
+Para ello vamos a reutilizar el vikingo fuerte y poco fuerte del test de carrera, y lo vamos a anidar dentro de nuestro tests:
+
+```js
+describe('Postas Test', () => {
+  let vikingoBarbaro
+  let vikingoNoTanBarbaro
+
+  beforeEach(() => {
+    vikingoBarbaro = {
+      barbarosidad: 10,
+      peso: 80
+    }
+    vikingoNoTanBarbaro = {
+      barbarosidad: 9,
+      peso: 40
+    }
+    combate.gradoBarbaridadRequerido = 10
+  })
+  test('cualquier vikingo puede participar de una carrera', () => {
+    expect(carrera.puedeParticipar(vikingoNoTanBarbaro)).toBeTruthy()
+  })
+  test('un vikingo con nivel de barbarosidad suficiente puede participar de un combate', () => {
+    expect(combate.puedeParticipar(vikingoBarbaro)).toBeTruthy()
+  })
+  test('un vikingo con nivel de barbarosidad insuficiente no puede participar de un combate', () => {
+    expect(combate.puedeParticipar(vikingoNoTanBarbaro)).toBeFalsy()
+  })
+})
+```
+
+El `beforeEach` nos permite envolver cosas que queremos hacer antes de llamar a cada test, como inicializar nuevamente los valores de un vikingo o un combate (para que no haya **efecto colateral**, así los tests son independientes y repetibles).
+
+La implementación de combate sigue siendo un objeto con dos slots: el atributo `gradoBarbaridadRequerido` y la función `puedeParticipar`.
+
+```js
+export const combate = {
+  gradoBarbaridadRequerido: 0,
+  puedeParticipar: function (participante) {
+    return participante.barbarosidad >= this.gradoBarbaridadRequerido
+  }
+}
+```
+
+Ya tenemos polimorfismo entre objetos... ¿lo notaron?
+
+```js
+    expect(carrera.puedeParticipar(vikingoNoTanBarbaro)).toBeTruthy()
+    expect(combate.puedeParticipar(vikingoBarbaro)).toBeTruthy()
+    expect(combate.puedeParticipar(vikingoNoTanBarbaro)).toBeFalsy()
+```
+
+![smile](https://media.giphy.com/media/xSM46ernAUN3y/giphy-downsized.gif)
 
 ## Nuestra primera definición de un vikingo
 

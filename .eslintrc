@@ -8,7 +8,7 @@
   },
   "rules": {
     "semi": [
-      0,
+      false,
       "never"
     ]
   }
