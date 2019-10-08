@@ -1,0 +1,13 @@
+sudo: required
+dist: trusty
+language: node_js
+node_js:
+  - '10.12'
+
+before_install:
+  - npm install -g npm@latest
+  - npm install
+
+before_script:
+
+script: npm test
