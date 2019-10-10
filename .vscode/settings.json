@@ -1,0 +1,4 @@
+{
+  "jest.showCoverageOnLoad": true,
+  "workbench.colorTheme": "Visual Studio Light"
+}
